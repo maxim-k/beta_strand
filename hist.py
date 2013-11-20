@@ -18,6 +18,8 @@ def count_aa(aa_list, dir_output):
     alone = {}
     single = {}
     double = {}
+    double_parallel = {}
+    double_antiparallel = {}
     parallel = {}
     antiparallel = {}
     summary = {}
@@ -42,6 +44,15 @@ def count_aa(aa_list, dir_output):
                             line[2] = 'C'
                         if_add(double, line[2])
                         if_add(summary, line[2])
+                    elif(thread == 's4'):
+                        if(len(line[0]) == 1):
+                            line[0] = line[0][0]
+                        if line[0][2] in string.ascii_lowercase:
+                            line[0][2] = 'C'
+                        if(line[1]):
+                            if_add(double_parallel, line[0][2])
+                        else:
+                            if_add(double_antiparallel, line[0][2])
                     else:
                         if line[2] in string.ascii_lowercase:
                             line[2] = 'C'
@@ -54,6 +65,10 @@ def count_aa(aa_list, dir_output):
     write_dic(single, single_file, 'aa quantity')
     double_file = open(dir_output + '\\double.txt', 'w')
     write_dic(double, double_file, 'aa quantity')
+    double_p_file = open(dir_output + '\\double_parallel.txt', 'w')
+    write_dic(double_parallel, double_p_file, 'aa quantity')
+    double_a_file = open(dir_output + '\\double_antiparallel.txt', 'w')
+    write_dic(double_antiparallel, double_a_file, 'aa quantity')
     parallel_file = open(dir_output + '\\parallel.txt', 'w')
     write_dic(parallel, parallel_file, 'aa quantity')
     antiparallel_file = open(dir_output + '\\antiparallel.txt', 'w')

@@ -115,10 +115,19 @@ def separate_beta(table):
                             sheets[sheet]['s0'].sort()
                         sheets[sheet][thread].pop(line_index)
     print(non_acc)
+
     return sheets
 
-def split_double():
-    return None
+def split_double(table):
+    left = []
+    right = []
+    for line in table:
+        left.append([line[0], line[1], line[2], line[3], line[4], '0', line[6]])
+        right.append([line[0], line[1], line[2], line[3], '0', line[5], line[6]])
+    left_parallel = [list(z) for z in (zip(left, set_parallel(left, 4, 6)))]
+    right_parallel = [list(z) for z in (zip(right, set_parallel(right, 5, 6)))]
+    left_parallel += right_parallel
+    return left_parallel
 
 def check_accordance(table):
     '''
@@ -158,7 +167,7 @@ def set_parallel(thread_list, col_num, sheet_label):
 
     return p
 
-a = aggregate_dict('E:\\Science\\MG\\Marat\\data\\')
+a = aggregate_dict('E:\\Science\\MG\\Marat\\data\\jp')
 processed = []
 
 for file in a:
@@ -173,9 +182,12 @@ for file in a:
                 s[sheet][thread] = [list(z) for z in (zip(s[sheet][thread], set_parallel(s[sheet][thread], 4, 6)))]
             elif(thread == 's2'):
                 s[sheet][thread] = [list(z) for z in zip(s[sheet][thread], set_parallel(s[sheet][thread], 5, 6))]
-
+            elif(thread == 's3')and(s[sheet][thread]):
+                s4 = split_double(s[sheet][thread])
             for line in s[sheet][thread]:
                 print(line)
+        if s4:
+            s[sheet]['s4'] = s4
     if s:
         processed.append(s)
 
