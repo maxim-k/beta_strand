@@ -167,7 +167,7 @@ def set_parallel(thread_list, col_num, sheet_label):
 
     return p
 
-a = aggregate_dict('E:\\Science\\MG\\Marat\\data\\jp')
+a = aggregate_dict('E:\\Science\\MG\\Marat\\data\\')
 processed = []
 
 for file in a:
