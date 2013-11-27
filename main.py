@@ -4,7 +4,7 @@ __author__ = 'Maxim K'
 
 import os
 import hist
-import aa_pairwise
+from aa_pairwise import count_pairwise
 
 def separate_struct_columns(line):
     '''
@@ -192,4 +192,4 @@ for file in a:
         processed.append(s)
 
 hist.count_aa(processed, 'E:\\Science\\MG\Marat\\hist')
-aa_pairwise.count_pairwise(processed, 'E:\\Science\\MG\Marat\\pairwise')
+count_pairwise(processed, 'E:\\Science\\MG\Marat\\pairwise')
