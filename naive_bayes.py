@@ -49,10 +49,29 @@ def set_max(aa_dic):
                 res[abs(i)-1] = {key: aa_dic[key]}
     return res
 
+def sum_strands(strand1, strand2):
+    '''
+    Складывает вероятности в двух стрендах
+    '''
+    sum = {}
+    strands_keys = set(list(strand1.keys()) + list(strand2.keys()))
+    for key in strands_keys:
+        sum[key] = strand1.get(key, 0) + strand2.get(key, 0)
+    return sum
+
+def predict(line):
+    sheet = [[dict(), dict(), dict(), dict(), dict()],
+             [dict(), dict(), dict(), dict(), dict()],
+             [dict(), dict(), dict(), dict(), dict()]]
+    pattern = [['-2L', '-1L', '0L', '1L', '2L'],
+               ['-2C', '-1C', '0C', '1C', '2С'],
+               ['-2R', '-1R', '0R', '1R', '2R']]
+    return None
+
 for dirname, dirnames, filenames in os.walk(path):
     for filename in filenames:
         file = open(os.path.join(dirname, filename), 'r').read()
         strand_name = get_strand_name(filename)
 
         aa_norm = set_normal(file)
-        n = set_max(aa_norm['Y'])
+        n = set_max(sum_strands(aa_norm['A'], aa_norm['Y']))
