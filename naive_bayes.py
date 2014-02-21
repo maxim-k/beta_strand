@@ -55,14 +55,7 @@ def sum_strands(strand1, strand2):
     sum = dict()
     strands_keys = set(list(strand1.keys()) + list(strand2.keys()))
     for key in strands_keys:
-        if strand1 == {}:
-            sum[key] = strand2.get(key, 0)
-        else:
-            strand_keys_keys = set(list(strand1[key].keys()) + list(strand2[key].keys()))
-            sum_sum = dict()
-            for key_key in strand_keys_keys:
-                sum_sum[key_key] = strand1[key].get(key_key, 0) + strand2[key].get(key_key, 0)
-            sum[key] = sum_sum
+        sum[key] = strand1.get(key, 0) + strand2.get(key, 0)
     return sum
 
 def predict(line, prob):
@@ -75,14 +68,15 @@ def predict(line, prob):
     pos = 2
     for aa in line:
         for cur in range(pos-2, pos+3):
-            sheet[0][cur] = sum_strands(sheet[0][cur], prob[pattern[0][cur+2-pos]])
+            sheet[0][cur] = sum_strands(sheet[0][cur], prob[pattern[0][cur+2-pos]].get(aa, dict()))
             if cur != pos:
-                sheet[1][cur] = sum_strands(sheet[1][cur], prob[pattern[1][cur+2-pos]])
-            sheet[2][cur] = sum_strands(sheet[2][cur], prob[pattern[2][cur+2-pos]])
-        sheet[0].append(dict())
-        sheet[1].append(dict())
-        sheet[2].append(dict())
-        pos += 1
+                sheet[1][cur] = sum_strands(sheet[1][cur], prob[pattern[1][cur+2-pos]].get(aa, dict()))
+            sheet[2][cur] = sum_strands(sheet[2][cur], prob[pattern[2][cur+2-pos]].get(aa, dict()))
+        if pos <= len(line):
+            sheet[0].append(dict())
+            sheet[1].append(dict())
+            sheet[2].append(dict())
+            pos += 1
     return sheet
 
 prob = dict()
@@ -95,5 +89,15 @@ for dirname, dirnames, filenames in os.walk(path):
         #n = set_max(sum_strands(aa_norm['A'], aa_norm['Y']))
 prob['0C'] = dict()
 
-p = predict('RVXAALPYY', prob)
+input_strand = 'RVXAALPYY'
+p = predict(input_strand, prob)
+for strand in range(3):
+    if strand == 1:
+        print('  ' + input_strand + '  ')
+    else:
+        pred_strand = ''
+        for pos in p[strand]:
+            for key in set_max(pos)[0].keys():
+                pred_strand += key
+        print(pred_strand)
 print()
