@@ -3,6 +3,7 @@ __author__ = 'Maxim K'
 import os, math
 
 path = 'E:\\Science\\MG\Marat\\pairwise\\neib_pairwise'
+path_0C = 'E:\\Science\\MG\\Marat\\server\\hist\\single.txt'
 
 def get_strand_name(filename):
     '''
@@ -19,9 +20,7 @@ def set_normal(aa_count):
     Ставит в соответствие сочетаниям аминокислот вероятность
     '''
     count = 0
-
     norm_strands = {}
-
     aa = aa_count.split(sep='\n')[1:len(aa_count.split(sep='\n')) - 1]
 
     for line in aa:
@@ -34,6 +33,23 @@ def set_normal(aa_count):
             norm_strands[line.split()[0]] = {line.split()[1]: math.log2(int(line.split()[2]) / count)}
 
     return norm_strands
+
+def set_normal_0(aa_count):
+    '''
+    Ставит в соответствие аминокислотам вероятность
+    '''
+    count = 0
+    norm_strands = {}
+    aa = aa_count.split(sep='\n')[1:len(aa_count.split(sep='\n')) - 1]
+
+    for line in aa:
+        count += int(line.split()[1])
+
+    for line in aa:
+        norm_strands[line.split()[0]] = math.log2(int(line.split()[1]) / count)
+
+    return norm_strands
+
 
 def set_max(aa_dic):
     '''
@@ -79,7 +95,9 @@ def predict(line, prob):
             pos += 1
     return sheet
 
+
 prob = dict()
+
 for dirname, dirnames, filenames in os.walk(path):
     for filename in filenames:
         file = open(os.path.join(dirname, filename), 'r').read()
@@ -87,7 +105,8 @@ for dirname, dirnames, filenames in os.walk(path):
         aa_norm = set_normal(file)
         prob[strand_name[2]] = set_normal(file)
         #n = set_max(sum_strands(aa_norm['A'], aa_norm['Y']))
-prob['0C'] = dict()
+
+prob['0C'] = set_normal_0(open(path_0C, 'r').read())
 
 input_strand = 'RVXAALPYY'
 p = predict(input_strand, prob)
