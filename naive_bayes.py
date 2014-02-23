@@ -3,7 +3,7 @@ __author__ = 'Maxim K'
 import os, math
 
 path = 'E:\\Science\\MG\Marat\\pairwise\\neib_pairwise'
-path_0C = 'E:\\Science\\MG\\Marat\\server\\hist\\single.txt'
+
 
 def get_strand_name(filename):
     '''
@@ -11,6 +11,7 @@ def get_strand_name(filename):
     '''
     name = filename.replace('neib_','').split(sep='.')[0].split(sep='_')
     mult, parallel, strand = name
+
     return [mult, parallel, strand]
 
 
@@ -49,16 +50,31 @@ def set_normal_0(aa_count):
 
     return norm_strands
 
-prob = dict()
+def prob_2d(prob):
+    for C in prob.keys():
+        if(C != '0C'):
+            for a in prob[C].keys():
+                for aa in prob[C][a].keys():
+                    prob[C][a][aa] += prob['0C'].get(aa, 0)
 
+prob = {'single': dict(), 'double': dict()}
 for dirname, dirnames, filenames in os.walk(path):
     for filename in filenames:
         if 'C' in filename:
-            file = open(os.path.join(dirname, filename), 'r').read()
-            strand_name = get_strand_name(filename)
-            aa_norm = set_normal(file)
-            prob[strand_name[2]] = set_normal(file)
+            if 'single' in filename:
+                file = open(os.path.join(dirname, filename), 'r').read()
+                strand_name = get_strand_name(filename)
+                aa_norm = set_normal(file)
+                prob['single'][strand_name[2]] = set_normal(file)
+            elif 'double' in filename:
+                file = open(os.path.join(dirname, filename), 'r').read()
+                strand_name = get_strand_name(filename)
+                aa_norm = set_normal(file)
+                prob['double'][strand_name[2]] = set_normal(file)
+prob['double']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\single.txt', 'r').read())
+prob['single']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\double.txt', 'r').read())
 
-prob['0C'] = set_normal_0(open(path_0C, 'r').read())
+for key in prob.keys():
+    prob_2d(prob[key])
 
 print()
