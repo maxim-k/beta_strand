@@ -1,5 +1,22 @@
 __author__ = 'Maxim K'
 
+"""
+Идея такая – попробовать для начала предсказывать двойные/одинарные связи в листах у аминокислот только на основе самих типов аминокислот и ее соседей по бета-стрэнду, на котором находится сама рассматриваемая аминокислота.
+Т.е. пока не делать никаких переборов соседних стрэндов, т.е. не учитывать соседей справа и слева. Я не ожидаю, что метод будет иметь высокое качество предсказания, но это хороший старт, и можно будет сравнить результаты с существующими методами.
+На основе собранных Вами данных можно попробовать, например, применить метод  Naïve Bayes.
+У нас будет 5 признаков (5 features) - тип самой рассматриваемой аминокислоты, и 4 типа соседей (-1С,-2С,1С,2С). Надо построить плотности распределения для каждого из двух классов (double/single) по всем этим 5-ти признакам.
+Для первого признака это будет одномерная дискретная функция плотности распределения.
+Т.е. для каждого из двух классов (double/single) у Вас будет 20-ть подсчитанных вероятностей по каждому типу аминокислоты.
+Вероятность подсчитывается просто – количество найденных аминокислот данного типа разделить на общее количество аминокислот в данном классе (double/single).
+Для остальных четырех признаков – это уже будут двумерные дискретные плотности распределения, так как в зависимости от типа рассматриваемой аминокислоты (в позиции 0C), для каждого признака у Вас будет 20 одномерных распределений.
+Т.е. фактически те же матрицы, которые Вы собрали, только в каждой клеточке надо посчитать вероятности – разделить количество найденных пар base-neib на общее количество в данном классе.
+Построенные плотности распределения фактически и есть Ваша классификационная модель.
+Работает она так – для нового объекта (рассматриваемой аминокислоты и 4-х ее соседей) Вы находи в построенных таблицах по всем 5-ти признакам соответствующие вероятности для класса double и перемножаете их, потом для класса single и тоже перемножаете их.
+Потом смотрите какая из двух конечных вероятностей получилась больше и к тому классу и относите объект (аминокилоту).
+Так как перемножение маленьких чисел может быть очень маленьким числом, то чтобы не потерять цифры далеко после запятой обычно рекомендуют заменять сами вероятности на логарифмы от этих вероятностей – числа получаются большие.
+При этом перемножение заменяется сложением.
+"""
+
 import os, math
 
 path = 'E:\\Science\\MG\Marat\\pairwise\\neib_pairwise'
@@ -9,7 +26,6 @@ def get_strand_name(filename):
     '''
     Разделяет имя файла на части
     '''
-
     name = filename.replace('neib_','').split(sep='.')[0].split(sep='_')
     mult, parallel, strand = name
     return [mult, parallel, strand]
@@ -50,52 +66,6 @@ def set_normal_0(aa_count):
 
     return norm_strands
 
-
-def set_max(aa_dic):
-    '''
-    Находит три самых вероятных аминокислоты для данной
-    '''
-    res = [0,0,0]
-    val = list(aa_dic.values())
-    val.sort()
-    for i in range(-3,0):
-        for key in aa_dic.keys():
-            if aa_dic[key] == val[i]:
-                res[abs(i)-1] = {key: aa_dic[key]}
-    return res
-
-def sum_strands(strand1, strand2):
-    '''
-    Складывает вероятности в двух стрендах
-    '''
-    sum = dict()
-    strands_keys = set(list(strand1.keys()) + list(strand2.keys()))
-    for key in strands_keys:
-        sum[key] = strand1.get(key, 0) + strand2.get(key, 0)
-    return sum
-
-def predict(line, prob):
-    sheet = [[dict(), dict(), dict(), dict(), dict()],
-             [dict(), dict(), dict(), dict(), dict()],
-             [dict(), dict(), dict(), dict(), dict()]]
-    pattern = [['-2L', '-1L', '0L', '1L', '2L'],
-               ['-2C', '-1C', '0C', '1C', '2C'],
-               ['-2R', '-1R', '0R', '1R', '2R']]
-    pos = 2
-    for aa in line:
-        for cur in range(pos-2, pos+3):
-            sheet[0][cur] = sum_strands(sheet[0][cur], prob[pattern[0][cur+2-pos]].get(aa, dict()))
-            if cur != pos:
-                sheet[1][cur] = sum_strands(sheet[1][cur], prob[pattern[1][cur+2-pos]].get(aa, dict()))
-            sheet[2][cur] = sum_strands(sheet[2][cur], prob[pattern[2][cur+2-pos]].get(aa, dict()))
-        if pos <= len(line):
-            sheet[0].append(dict())
-            sheet[1].append(dict())
-            sheet[2].append(dict())
-            pos += 1
-    return sheet
-
-
 prob = dict()
 
 for dirname, dirnames, filenames in os.walk(path):
@@ -104,19 +74,7 @@ for dirname, dirnames, filenames in os.walk(path):
         strand_name = get_strand_name(filename)
         aa_norm = set_normal(file)
         prob[strand_name[2]] = set_normal(file)
-        #n = set_max(sum_strands(aa_norm['A'], aa_norm['Y']))
 
 prob['0C'] = set_normal_0(open(path_0C, 'r').read())
 
-input_strand = 'RVXAALPYY'
-p = predict(input_strand, prob)
-for strand in range(3):
-    if strand == 1:
-        print('  ' + input_strand + '  ')
-    else:
-        pred_strand = ''
-        for pos in p[strand]:
-            for key in set_max(pos)[0].keys():
-                pred_strand += key
-        print(pred_strand)
 print()
