@@ -51,11 +51,17 @@ def set_normal_0(aa_count):
     return norm_strands
 
 def prob_2d(prob):
+    '''
+    Считает двумерную дискретную плотность распределения для соседей 0C
+    '''
     for C in prob.keys():
         if(C != '0C'):
             for a in prob[C].keys():
                 for aa in prob[C][a].keys():
-                    prob[C][a][aa] += prob['0C'].get(aa, 0)
+                    prob[C][a][aa] += prob['0C'].get(a, 0)
+
+def sum_prob(five):
+    return None
 
 prob = {'single': dict(), 'double': dict()}
 for dirname, dirnames, filenames in os.walk(path):
