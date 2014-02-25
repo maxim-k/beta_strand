@@ -60,8 +60,36 @@ def prob_2d(prob):
                 for aa in prob[C][a].keys():
                     prob[C][a][aa] += prob['0C'].get(a, 0)
 
-def sum_prob(five):
-    return None
+def classify_five(five, prob):
+    '''
+    Классифицирует последовательность
+    '''
+    single = 0
+    double = 0
+    c = five[2]
+    s = prob['single']
+    d = prob['double']
+
+    for i in range(-2, 3):
+        a = five[i + 2]
+        C = str(i) + 'C'
+        if i and s[C].get(c, 0):
+            single += s[C][c].get(a, 0)
+        elif not(i):
+            single += s[C].get(c, 0)
+
+    for i in range(-2, 3):
+        a = five[i + 2]
+        C = str(i) + 'C'
+        if i and d[C].get(c, 0):
+            double += d[C][c].get(a, 0)
+        elif not(i):
+            double += d[C].get(c, 0)
+
+    if single > double:
+        return 'single'
+    else:
+        return 'double'
 
 prob = {'single': dict(), 'double': dict()}
 for dirname, dirnames, filenames in os.walk(path):
@@ -83,4 +111,4 @@ prob['single']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\
 for key in prob.keys():
     prob_2d(prob[key])
 
-print()
+print(classify_five('AAYPV', prob))
