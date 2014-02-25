@@ -86,6 +86,7 @@ def classify_five(five, prob):
         elif not(i):
             double += d[C].get(c, 0)
 
+    print(abs(single-double))
     if single > double:
         return 'single'
     else:
@@ -111,4 +112,4 @@ prob['single']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\
 for key in prob.keys():
     prob_2d(prob[key])
 
-print(classify_five('AAYPV', prob))
+print(classify_five('TLNIA', prob))
