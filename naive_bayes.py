@@ -2,7 +2,7 @@ __author__ = 'Maxim K'
 
 import os, math
 
-path = 'E:\\Science\\MG\Marat\\pairwise\\neib_pairwise'
+path = '/home/maximk/MG/neib_pairwise/'
 
 
 def get_strand_name(filename):
@@ -59,13 +59,15 @@ def prob_2d(prob):
         if(C != '0C'):
             for a in prob[C].keys():
                 for aa in prob[C][a].keys():
-                    prob[C][a][aa] += prob['0C'].get(a, 0)
+                    prob[C][a][aa] += prob['0C'].get(a, -50)
 
 
 def classify_five(five, prob):
     '''
     Классифицирует последовательность
     '''
+    if 'P' in five:
+        return 'P'
     single = 0
     double = 0
     c = five[2]
@@ -75,18 +77,18 @@ def classify_five(five, prob):
     for i in range(-2, 3):
         a = five[i + 2]
         C = str(i) + 'C'
-        if i and s[C].get(c, 0):
-            single += s[C][c].get(a, 0)
+        if i and s[C].get(c, -50):
+            single += s[C][c].get(a, -50)
         elif not(i):
-            single += s[C].get(c, 0)
+            single += s[C].get(c, -50)
 
     for i in range(-2, 3):
         a = five[i + 2]
         C = str(i) + 'C'
-        if i and d[C].get(c, 0):
-            double += d[C][c].get(a, 0)
+        if i and d[C].get(c, -50):
+            double += d[C][c].get(a, -50)
         elif not(i):
-            double += d[C].get(c, 0)
+            double += d[C].get(c, -50)
 
     #print(abs(single-double))
     if single > double:
@@ -122,26 +124,24 @@ for dirname, dirnames, filenames in os.walk(path):
                 strand_name = get_strand_name(filename)
                 aa_norm = set_normal(file)
                 prob['double'][strand_name[2]] = set_normal(file)
-prob['double']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\single.txt', 'r').read())
-prob['single']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\double.txt', 'r').read())
+
+prob['single']['0C'] = set_normal_0(open('/home/maximk/MG/single.txt', 'r').read())
+prob['double']['0C'] = set_normal_0(open('/home/maximk/MG/double.txt', 'r').read())
 
 for key in prob.keys():
     prob_2d(prob[key])
 
-strand_path = 'E:\\Science\\MG\Marat\\server\\pairwise\\neib\\'
-single_parallel = read_strand(open(strand_path + 'neib_single_parallel.txt','r').read().split(sep='\n')[1:])
-single_parallel_5 = split_five(single_parallel)
+strand_path = '/home/maximk/MG/'
+strand = read_strand(open(strand_path + 'neib_single_antiparallel.txt','r').read().split(sep='\n')[1:])
+strand_5 = split_five(strand)
 count_all = 0
 count_right = 0
-for five in single_parallel_5:
+count_p = 0
+for five in strand_5:
     count_all += 1
-    if classify_five(five, prob) == 'single':
+    classified = classify_five(five, prob)
+    if classified == 'single':
         count_right += 1
-print('strands: %s\nsingles: %s\npercent: %s' % (count_all, count_right, count_right/count_all))
-
-#single_antiparallel = read_strand(open(strand_path + 'neib_single_antiparallel.txt','r').read().split(sep='\n')[1:])
-#single_antiparallel_5 = split_five(single_antiparallel)
-#double_parallel = read_strand(open(strand_path + 'neib_double_parallel.txt','r').read().split(sep='\n')[1:])
-#double_parallel_5 = split_five(double_parallel)
-#double_antiparallel = read_strand(open(strand_path + 'neib_double_antiparallel.txt','r').read().split(sep='\n')[1:])
-#double_antiparallel_5 = split_five(double_antiparallel)
+    elif classified == 'P':
+        count_p += 1
+print('strands: %s\nsingles: %s\nP: %s\npercent: %s' % (count_all, count_right, count_p, count_right/count_all))
