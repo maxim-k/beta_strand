@@ -2,7 +2,7 @@ __author__ = 'Maxim K'
 
 import os, math
 
-path = '/home/maximk/MG/neib_pairwise/'
+path = 'E:\\Science\\MG\Marat\\pairwise\\neib_pairwise\\'
 
 
 def get_strand_name(filename):
@@ -66,8 +66,6 @@ def classify_five(five, prob):
     '''
     Классифицирует последовательность
     '''
-    if 'P' in five:
-        return 'P'
     single = 0
     double = 0
     c = five[2]
@@ -85,9 +83,9 @@ def classify_five(five, prob):
     for i in range(-2, 3):
         a = five[i + 2]
         C = str(i) + 'C'
-        if i and d[C].get(c, -50):
+        if i and (d[C].get(c, -50) != -50):
             double += d[C][c].get(a, -50)
-        elif not(i):
+        else:
             double += d[C].get(c, -50)
 
     #print(abs(single-double))
@@ -125,14 +123,14 @@ for dirname, dirnames, filenames in os.walk(path):
                 aa_norm = set_normal(file)
                 prob['double'][strand_name[2]] = set_normal(file)
 
-prob['single']['0C'] = set_normal_0(open('/home/maximk/MG/single.txt', 'r').read())
-prob['double']['0C'] = set_normal_0(open('/home/maximk/MG/double.txt', 'r').read())
+prob['double']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\single.txt', 'r').read())
+prob['single']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\double.txt', 'r').read())
 
 for key in prob.keys():
     prob_2d(prob[key])
 
-strand_path = '/home/maximk/MG/'
-strand = read_strand(open(strand_path + 'neib_single_antiparallel.txt','r').read().split(sep='\n')[1:])
+strand_path = 'E:\\Science\\MG\Marat\\server\\pairwise\\neib\\'
+strand = read_strand(open(strand_path + 'neib_double_antiparallel.txt','r').read().split(sep='\n')[1:])
 strand_5 = split_five(strand)
 count_all = 0
 count_right = 0
@@ -140,8 +138,6 @@ count_p = 0
 for five in strand_5:
     count_all += 1
     classified = classify_five(five, prob)
-    if classified == 'single':
+    if classified == 'double':
         count_right += 1
-    elif classified == 'P':
-        count_p += 1
 print('strands: %s\nsingles: %s\nP: %s\npercent: %s' % (count_all, count_right, count_p, count_right/count_all))
