@@ -50,6 +50,7 @@ def set_normal_0(aa_count):
 
     return norm_strands
 
+
 def prob_2d(prob):
     '''
     Считает двумерную дискретную плотность распределения для соседей 0C
@@ -59,6 +60,7 @@ def prob_2d(prob):
             for a in prob[C].keys():
                 for aa in prob[C][a].keys():
                     prob[C][a][aa] += prob['0C'].get(a, 0)
+
 
 def classify_five(five, prob):
     '''
@@ -86,11 +88,25 @@ def classify_five(five, prob):
         elif not(i):
             double += d[C].get(c, 0)
 
-    print(abs(single-double))
+    #print(abs(single-double))
     if single > double:
         return 'single'
     else:
         return 'double'
+
+def read_strand(file):
+    '''
+    Читает 0C
+    '''
+    strand = ''
+    for line in file:
+        if len(line)>15:
+            strand += line.strip().split(sep=';')[7]
+    return strand
+
+def split_five(strand):
+    strand = strand[:len(strand)//5*5]
+    return (strand[0+i:5+i] for i in range(0, len(strand), 5))
 
 prob = {'single': dict(), 'double': dict()}
 for dirname, dirnames, filenames in os.walk(path):
@@ -112,4 +128,20 @@ prob['single']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\
 for key in prob.keys():
     prob_2d(prob[key])
 
-print(classify_five('TLNIA', prob))
+strand_path = 'E:\\Science\\MG\Marat\\server\\pairwise\\neib\\'
+single_parallel = read_strand(open(strand_path + 'neib_single_parallel.txt','r').read().split(sep='\n')[1:])
+single_parallel_5 = split_five(single_parallel)
+count_all = 0
+count_right = 0
+for five in single_parallel_5:
+    count_all += 1
+    if classify_five(five, prob) == 'single':
+        count_right += 1
+print('strands: %s\nsingles: %s\npercent: %s' % (count_all, count_right, count_right/count_all))
+
+#single_antiparallel = read_strand(open(strand_path + 'neib_single_antiparallel.txt','r').read().split(sep='\n')[1:])
+#single_antiparallel_5 = split_five(single_antiparallel)
+#double_parallel = read_strand(open(strand_path + 'neib_double_parallel.txt','r').read().split(sep='\n')[1:])
+#double_parallel_5 = split_five(double_parallel)
+#double_antiparallel = read_strand(open(strand_path + 'neib_double_antiparallel.txt','r').read().split(sep='\n')[1:])
+#double_antiparallel_5 = split_five(double_antiparallel)
