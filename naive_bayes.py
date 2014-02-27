@@ -112,25 +112,25 @@ prob = {'single': dict(), 'double': dict()}
 for dirname, dirnames, filenames in os.walk(path):
     for filename in filenames:
         if 'C' in filename:
-            if 'single' in filename:
+            if ('single' in filename)and('parallel' in filename):
                 file = open(os.path.join(dirname, filename), 'r').read()
                 strand_name = get_strand_name(filename)
                 aa_norm = set_normal(file)
                 prob['single'][strand_name[2]] = set_normal(file)
-            elif 'double' in filename:
+            elif ('double' in filename)and('parallel' in filename):
                 file = open(os.path.join(dirname, filename), 'r').read()
                 strand_name = get_strand_name(filename)
                 aa_norm = set_normal(file)
                 prob['double'][strand_name[2]] = set_normal(file)
 
-prob['double']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\single.txt', 'r').read())
-prob['single']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\double.txt', 'r').read())
+prob['single']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\single.txt', 'r').read())
+prob['double']['0C'] = set_normal_0(open('E:\\Science\\MG\\Marat\\server\\hist\\double.txt', 'r').read())
 
 for key in prob.keys():
     prob_2d(prob[key])
 
 strand_path = 'E:\\Science\\MG\Marat\\server\\pairwise\\neib\\'
-strand = read_strand(open(strand_path + 'neib_double_antiparallel.txt','r').read().split(sep='\n')[1:])
+strand = read_strand(open(strand_path + 'neib_double_parallel.txt','r').read().split(sep='\n')[1:])
 strand_5 = split_five(strand)
 count_all = 0
 count_right = 0
